@@ -62,7 +62,7 @@ describe("User Registration", () => {
     });
   });
 
-  describe.only("User Registration - Negatif Cases", () => {
+  describe("User Registration - Negatif Cases", () => {
     it("User can't register with an empty email", () => {
       cy.fixture("dataTest.json").then((data) => {
         Common.visitUrl(data.browser.url);
@@ -149,8 +149,13 @@ describe("User Registration", () => {
         Common.visitUrl(data.browser.url);
       });
       SignUp.inputEmailPassword(email, password);
-      SignUp.inputUserDataNegatifCases("", `Autobahn`, `80000${randomNumber}`);
-      cy.get(".error > .label").should("have.text", "Field cannot be empty");
+      SignUp.inputUserDataNegatifCases(
+        "",
+        `Autobahn`,
+        `80000${randomNumber}`,
+        true
+      );
+      SignUp.assertFirstNameWarning("Field cannot be empty");
       SignUp.assertButtonSignUpDisable();
     });
 
@@ -162,12 +167,10 @@ describe("User Registration", () => {
       SignUp.inputUserDataNegatifCases(
         "S@ya",
         `Autobahn`,
-        `80000${randomNumber}`
+        `80000${randomNumber}`,
+        true
       );
-      cy.get(".error > .label").should(
-        "have.text",
-        "First name cannot contain symbols"
-      );
+      SignUp.assertFirstNameWarning("First name cannot contain symbols");
       SignUp.assertButtonSignUpDisable();
     });
 
@@ -176,8 +179,13 @@ describe("User Registration", () => {
         Common.visitUrl(data.browser.url);
       });
       SignUp.inputEmailPassword(email, password);
-      SignUp.inputUserDataNegatifCases("Saya", "", `80000${randomNumber}`);
-      cy.get("label").should("have.text", "Field cannot be empty");
+      SignUp.inputUserDataNegatifCases(
+        "Saya",
+        "",
+        `80000${randomNumber}`,
+        true
+      );
+      SignUp.assertLastNameWarning("Field cannot be empty");
       SignUp.assertButtonSignUpDisable();
     });
 
@@ -186,23 +194,27 @@ describe("User Registration", () => {
         Common.visitUrl(data.browser.url);
       });
       SignUp.inputEmailPassword(email, password);
-      SignUp.inputUserDataNegatifCases("Saya", "@uto", `80000${randomNumber}`);
-      cy.get("label").should("have.text", "Last name cannot contain symbols");
+      SignUp.inputUserDataNegatifCases(
+        "Saya",
+        "@uto",
+        `80000${randomNumber}`,
+        true
+      );
+      SignUp.assertLastNameWarning("First name cannot contain symbols");
       SignUp.assertButtonSignUpDisable();
     });
 
     it("User can't register without choosing an industry", () => {
-      cy.visit("https://autobahn.security/signup");
-      cy.get('input[name="email"]').type(email);
-      cy.get('input[name="password"]').type(password);
-      cy.get(".button-wrapper > .custom-button > .btn > .button-text").click();
-      cy.get(".spinner > .fa").should("be.visible");
-      cy.get('input[name="first-name"]').type("User");
-      cy.get(".placeholderActive").click();
-      cy.get('input[name="last-name"]').type("Autobahn");
-      cy.get(".iti__selected-flag > .iti__flag").click();
-      cy.get("#iti-item-id").click();
-      cy.get('input[name="phone-number"]').type(`80000${randomNumber}`);
+      cy.fixture("dataTest.json").then((data) => {
+        Common.visitUrl(data.browser.url);
+      });
+      SignUp.inputEmailPassword(email, password);
+      SignUp.inputUserDataNegatifCases(
+        "Saya",
+        "@uto",
+        `80000${randomNumber}`,
+        false
+      );
       cy.get(":nth-child(3) > .label").should(
         "have.text",
         "Field cannot be empty"
@@ -210,16 +222,17 @@ describe("User Registration", () => {
       SignUp.assertButtonSignUpDisable();
     });
 
-    it.only("User can't register with an empty phone number", () => {
+    it("User can't register with an empty phone number", () => {
       cy.fixture("dataTest.json").then((data) => {
         Common.visitUrl(data.browser.url);
       });
       SignUp.inputEmailPassword(email, password);
-      SignUp.inputUserDataNegatifCases("Saya", "Autobahn", "");
+      SignUp.inputUserDataNegatifCases("Saya", "Autobahn", "", true);
+      SignUp.assertPhoneNumberWarning("Field cannot be empty");
       SignUp.assertButtonSignUpDisable();
     });
 
-    it.only("User can't register with invalid phone number format", () => {
+    it("User can't register with invalid phone number format", () => {
       cy.fixture("dataTest.json").then((data) => {
         Common.visitUrl(data.browser.url);
       });
@@ -227,12 +240,10 @@ describe("User Registration", () => {
       SignUp.inputUserDataNegatifCases(
         "Saya",
         "Autobahn",
-        `10000${randomNumber}`
+        `10000${randomNumber}`,
+        true
       );
-      cy.get(".error > .label").should(
-        "have.text",
-        "Please enter a valid phone number"
-      );
+      SignUp.assertPhoneNumberWarning("Please enter a valid phone number");
       SignUp.assertButtonSignUpDisable();
     });
   });

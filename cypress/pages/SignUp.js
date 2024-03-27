@@ -25,6 +25,9 @@ export const SignUp = {
     oneLowercaseLetterWarning: "li:contains('One lowercase letter')",
     oneNumberWarning: "li:contains('One number')",
     oneSpecialCharacterWarning: "li:contains('One special character')",
+    textFirstNameWarning: ".error > .label",
+    textLastNameWarning: "label",
+    textPhoneNumberWarning: ".error > .label",
   },
 
   inputEmailPassword: (email, password) => {
@@ -39,8 +42,11 @@ export const SignUp = {
       : cy.get(SignUp.selectors.inputEmail).click();
     password
       ? cy.get(SignUp.selectors.inputPassword).type(password)
-      : cy.get(SignUp.selectors.inputPassword).click();
-    cy.get(SignUp.selectors.inputEmail).click();
+      : cy
+          .get(SignUp.selectors.inputPassword)
+          .click()
+          .get(SignUp.selectors.inputEmail)
+          .click();
   },
 
   inputUserDataPositifCases: (firstName, lastName, phoneNumber) => {
@@ -54,15 +60,21 @@ export const SignUp = {
     cy.get(SignUp.selectors.buttonStart).click();
   },
 
-  inputUserDataNegatifCases: (firstName, lastName, phoneNumber) => {
+  inputUserDataNegatifCases: (firstName, lastName, phoneNumber, industry) => {
     firstName
       ? cy.get(SignUp.selectors.inputFirstName).type(firstName)
       : cy.get(SignUp.selectors.inputFirstName).click();
     lastName
       ? cy.get(SignUp.selectors.inputLastName).type(lastName)
       : cy.get(SignUp.selectors.inputLastName).click();
-    cy.get(SignUp.selectors.dropdownIndustry).click();
-    cy.get(SignUp.selectors.optionIndustry).click();
+    industry
+      ? cy
+          .get(SignUp.selectors.dropdownIndustry)
+          .click()
+          .get(SignUp.selectors.optionIndustry)
+          .click()
+      : cy.get(SignUp.selectors.dropdownIndustry).click().click();
+
     cy.get(SignUp.selectors.dropdownCountryPhoneCode).click();
     cy.get(SignUp.selectors.optionCountryPhoneCode).click();
     phoneNumber
@@ -141,7 +153,27 @@ export const SignUp = {
     );
   },
 
+  assertFirstNameWarning: (text) => {
+    cy.get(SignUp.selectors.textFirstNameWarning).should(
+      "have.text",
+      `${text}`
+    );
+  },
+
+  assertLastNameWarning: (text) => {
+    cy.get(SignUp.selectors.textLastNameWarning).should("have.text", `${text}`);
+  },
+
+  assertPhoneNumberWarning: (text) => {
+    cy.get(SignUp.selectors.textPhoneNumberWarning).should(
+      "have.text",
+      `${text}`
+    );
+  },
+
   assertButtonSignUpDisable: () => {
     cy.get(SignUp.selectors.buttonSignUp).should("not.be.enabled");
   },
+
+  inputUserDataWithoutChoosingIndustry: () => {},
 };
